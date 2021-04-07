@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define AVAIABLE 0
+#define AVAILABLE 0
 #define OCUPIED 1
 
 #define IDLE 2
@@ -9,20 +9,25 @@
 #define EATING 4
 
 typedef struct {
-    int id;
-    char name[];
+    sem_t semaphore;
     int status;
+} Fork;
+
+typedef struct {
+    Fork **forks;
+    int n_forks;
+} DiningTable;
+
+typedef struct {
+    int id;
+    char *name;
+    int status;
+    DiningTable * table;
 } Philosopher;
 
-typedef struct {
-    int status;
-} Spoon;
 
-typedef struct {
-    Philosopher philosophers[];
-} Pensatorio;
 
-typedef struct {
-    Philosopher philosophers[];
-    Spoon spoons[];
-} MesaDeJantar;
+
+int to_eat(Philosopher *philosoper, int time);
+int to_think(Philosopher *philosoper, int time);
+void * philosopher_behavior(void * arg);
