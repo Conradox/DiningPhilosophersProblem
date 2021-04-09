@@ -53,3 +53,75 @@ DiningTable* create_table(int n_forks)
 
     return new_table;
 }
+
+void * philosopher_behavior(void * arg)
+{
+    Philosopher * my = (Philosopher *) arg;
+    #ifdef DEBUG
+        printf("|Log: Philosopher|%d| | Being started\n", my->id);
+    #endif
+
+    int successful_try = 0;
+    while(successful_try == 0)
+    {
+        int right_fork = my->id;
+        int left_fork = (my->id + 1) % my->table->n_forks;
+        
+        #ifdef DEBUG
+            printf("|Log: Philosopher|%d| | Trying to get forks\n", my->id);
+        #endif
+        
+        int right_fork_res = sem_trywait(&my->table->forks[right_fork]->semaphore);
+        int left_fork_res = sem_trywait(&my->table->forks[left_fork]->semaphore);
+        
+        #ifdef DEBUG
+            printf("|Log: Philosopher|%d| | Checking try\n", my->id);
+        #endif
+        
+        if (right_fork_res == 0 && left_fork_res == 0)
+        {   
+            successful_try++;
+            to_eat(my, 4);
+            sem_post(&my->table->forks[right_fork]->semaphore);
+            sem_post(&my->table->forks[left_fork]->semaphore);
+        }else
+        {
+            if(right_fork_res == 0){
+                sem_post(&my->table->forks[right_fork]->semaphore);
+            }else if(left_fork_res == 0)
+            {
+                sem_post(&my->table->forks[left_fork]->semaphore);
+            }
+
+            #ifdef DEBUG
+                printf("|Log: Philosopher|%d| | Going to think\n", my->id);
+                printf("|Log: Philosopher|%d| | Starting to think\n", my->id);
+            #endif
+            to_think(my, 4);
+            #ifdef DEBUG
+                printf("|Log: Philosopher|%d| | Finish to think\n", my->id);
+            #endif
+        }
+        
+        
+    }
+    
+    
+}
+
+int to_eat(Philosopher *philosoper, int time)
+{
+    printf("|Log: Philosopher|%d| Eating\n", philosoper->id);
+    usleep(1000000 * time);
+    printf("|Log: Philosopher|%d| Finish\n", philosoper->id);
+
+}
+
+
+int to_think(Philosopher *philosoper, int time)
+{
+    printf("|Log: Philosopher|%d| Thinking\n", philosoper->id);
+    usleep(1000000 * time);
+    printf("|Log: Philosopher|%d| Finish\n", philosoper->id);
+
+}
