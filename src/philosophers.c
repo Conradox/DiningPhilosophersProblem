@@ -31,7 +31,7 @@ Philosopher** create_philosophers(int number_of_philosophers, DiningTable *table
     {
         new_philosophers[i] = philosopher_creator(i, table, thinking_time, eating_time);
         #ifdef DEBUG
-            printf("|Log: Philosopher|%d| Being created\n", new_philosophers[i]->id);
+            printf("|Log: Philosopher|%d| | Being created\n", new_philosophers[i]->id);
         #endif
     }
     return new_philosophers;
@@ -58,68 +58,60 @@ void * philosopher_behavior(void * arg)
     #ifdef DEBUG
         printf("|Log: Philosopher|%d| | Being started\n", my->id);
     #endif
+    int state = 0;
 
-    int successful_try = 0;
-    while(successful_try == 0)
+    int right_fork = my->id;
+    int left_fork = (my->id + 1) % my->table->n_forks;
+            
+    while(1)
     {
-        int right_fork = my->id;
-        int left_fork = (my->id + 1) % my->table->n_forks;
-        
         #ifdef DEBUG
-            printf("|Log: Philosopher|%d| | Trying to get forks\n", my->id);
+            printf("|Log: Philosopher|%d| | Starving\n", my->id);
         #endif
-        
-        int right_fork_res = sem_trywait(&my->table->forks[right_fork]->semaphore);
-        int left_fork_res = sem_trywait(&my->table->forks[left_fork]->semaphore);
-        
         #ifdef DEBUG
-            printf("|Log: Philosopher|%d| | Checking try\n", my->id);
+            printf("|Log: Philosopher|%d| | Trying to eat\n", my->id);
         #endif
-        
-        if (right_fork_res == 0 && left_fork_res == 0)
-        {   
-            successful_try++;
-            to_eat(my, 4);
-            sem_post(&my->table->forks[right_fork]->semaphore);
-            sem_post(&my->table->forks[left_fork]->semaphore);
-        }else
+        while(state == 0)
         {
-            if(right_fork_res == 0){
-                sem_post(&my->table->forks[right_fork]->semaphore);
-            }else if(left_fork_res == 0)
+            int right_fork_res = sem_trywait(&my->table->forks[right_fork]->semaphore);
+            int left_fork_res = sem_trywait(&my->table->forks[left_fork]->semaphore);
+            
+            if (right_fork_res == 0 && left_fork_res == 0)
             {
+                state = 1;   
+                to_eat(my);
+                sem_post(&my->table->forks[right_fork]->semaphore);
                 sem_post(&my->table->forks[left_fork]->semaphore);
+            }else
+            {
+                if(right_fork_res == 0){
+                    sem_post(&my->table->forks[right_fork]->semaphore);
+                }else if(left_fork_res == 0)
+                {
+                    sem_post(&my->table->forks[left_fork]->semaphore);
+                }
             }
 
-            #ifdef DEBUG
-                printf("|Log: Philosopher|%d| | Going to think\n", my->id);
-                printf("|Log: Philosopher|%d| | Starting to think\n", my->id);
-            #endif
-            to_think(my, 4);
-            #ifdef DEBUG
-                printf("|Log: Philosopher|%d| | Finish to think\n", my->id);
-            #endif
         }
-        
-        
+        state = 2;
+
+        to_think(my);   
     }
-    
-    
 }
 
-int to_eat(Philosopher *philosoper, int time)
+int to_eat(Philosopher *philosoper)
 {
-    printf("|Log: Philosopher|%d| Eating\n", philosoper->id);
+    printf("|Log: Philosopher|%d| | Start to eat\n", philosoper->id);
     sleep(philosoper->eating_time);
-    printf("|Log: Philosopher|%d| Finish\n", philosoper->id);
+    printf("|Log: Philosopher|%d| | Finish to eat\n", philosoper->id);
 
 }
 
 
-int to_think(Philosopher *philosoper, int time)
+int to_think(Philosopher *philosoper)
 {
-    printf("|Log: Philosopher|%d| Thinking\n", philosoper->id);
+    printf("|Log: Philosopher|%d| | Start to think\n", philosoper->id);
     sleep(philosoper->thinking_time);
-    printf("|Log: Philosopher|%d| Finish\n", philosoper->id);
+    printf("|Log: Philosopher|%d| | Finish to think\n", philosoper->id);
 
 }

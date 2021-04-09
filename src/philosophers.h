@@ -34,8 +34,8 @@ typedef struct {
 
 
 
-int to_eat(Philosopher *philosoper, int time);
-int to_think(Philosopher *philosoper, int time);
+int to_eat(Philosopher *philosoper);
+int to_think(Philosopher *philosoper);
 void * philosopher_behavior(void * arg);
 DiningTable* create_table(int n_forks);
 Philosopher* create_philosopher(int id, char *name, DiningTable *table, int thinking_time, int eating_time);

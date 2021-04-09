@@ -26,8 +26,6 @@ int main(int argc, char * args[]){
 
         pthread_t threads[number_of_philosophers];
 
-        
-        philosopher_behavior(philosophers[0]);
         int ret, i;
         for (i = 0; i < number_of_philosophers; i++)
         {
