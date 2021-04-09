@@ -8,30 +8,28 @@ Fork* create_fork()
     return new_fork;   
 }
 
-Philosopher* create_philosopher(int id, char *name, DiningTable *table)
+Philosopher* create_philosopher(int id, char *name, DiningTable *table, int thinking_time, int eating_time)
 {
     Philosopher * new_philosopher = (Philosopher *) malloc(sizeof(Philosopher));
     new_philosopher->id = id;
     new_philosopher->name = name;
     new_philosopher->status = 0;
     new_philosopher->table = table;
+    new_philosopher->eating_time = eating_time;
+    new_philosopher->thinking_time = thinking_time;
 }
 
-Philosopher* philosopher_creator(int id, DiningTable *table)
+Philosopher* philosopher_creator(int id, DiningTable *table, int thinking_time, int eating_time)
 {
-    Philosopher * new_philosopher = (Philosopher *) malloc(sizeof(Philosopher));
-    new_philosopher->id = id;
-    new_philosopher->name = "";
-    new_philosopher->status = 0;
-    new_philosopher->table = table;
+    return create_philosopher(id, "", table, thinking_time, eating_time);
 }
 
-Philosopher** create_philosophers(int number_of_philosophers, DiningTable *table)
+Philosopher** create_philosophers(int number_of_philosophers, DiningTable *table, int thinking_time, int eating_time)
 {
     Philosopher ** new_philosophers = (Philosopher **) malloc(sizeof(Philosopher*) * number_of_philosophers);
     for(int i = 0; i < number_of_philosophers; i++)
     {
-        new_philosophers[i] = philosopher_creator(i, table);
+        new_philosophers[i] = philosopher_creator(i, table, thinking_time, eating_time);
         #ifdef DEBUG
             printf("|Log: Philosopher|%d| Being created\n", new_philosophers[i]->id);
         #endif
@@ -112,7 +110,7 @@ void * philosopher_behavior(void * arg)
 int to_eat(Philosopher *philosoper, int time)
 {
     printf("|Log: Philosopher|%d| Eating\n", philosoper->id);
-    usleep(1000000 * time);
+    sleep(philosoper->eating_time);
     printf("|Log: Philosopher|%d| Finish\n", philosoper->id);
 
 }
@@ -121,7 +119,7 @@ int to_eat(Philosopher *philosoper, int time)
 int to_think(Philosopher *philosoper, int time)
 {
     printf("|Log: Philosopher|%d| Thinking\n", philosoper->id);
-    usleep(1000000 * time);
+    sleep(philosoper->thinking_time);
     printf("|Log: Philosopher|%d| Finish\n", philosoper->id);
 
 }

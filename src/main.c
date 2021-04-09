@@ -22,14 +22,15 @@ int main(int argc, char * args[]){
         DiningTable * table;
         Philosopher **philosophers;
         table = create_table(number_of_philosophers);
-        philosophers = create_philosophers(number_of_philosophers, table);
+        philosophers = create_philosophers(number_of_philosophers, table, time_to_think, time_to_eat);
 
         pthread_t threads[number_of_philosophers];
 
         
         philosopher_behavior(philosophers[0]);
         int ret, i;
-        for (i = 0; i < number_of_philosophers; i++) {
+        for (i = 0; i < number_of_philosophers; i++)
+        {
             ret = pthread_create(&threads[i], NULL, &philosopher_behavior, philosophers[i]);
             if(ret != 0) {
                 printf ("Create pthread error!\n");
